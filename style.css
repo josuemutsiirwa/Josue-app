@@ -1,0 +1,112 @@
+/* =========================
+   BASE (DESKTOP)
+========================= */
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background-image: url("Design sans titre.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+/* NAV */
+nav {
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+/* CONTAINER */
+.todo {
+    text-align: center;
+    background: rgba(255,255,255,0.9);
+    width: 400px;
+    margin: 60px auto;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* INPUTS */
+textarea, input {
+    padding: 10px;
+    margin: 10px;
+    width: 90%;
+}
+
+/* BUTTON */
+button {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    background-color: rgb(48,48,182);
+    color: white;
+    border: none;
+}
+
+button:hover {
+    background-color: rgb(48,48,255);
+}
+
+/* TASK LIST */
+#task-list {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background: white;
+    margin: 10px auto;
+    padding: 15px;
+    width: 400px;
+    border-radius: 8px;
+}
+
+/* =========================
+   📱 TABLET (max 768px)
+========================= */
+
+@media (max-width: 768px) {
+
+    .todo {
+        width: 90%;
+        margin: 30px auto;
+    }
+
+    li {
+        width: 90%;
+    }
+
+    textarea, input {
+        width: 95%;
+    }
+}
+
+/* =========================
+   📱 PHONE (max 480px)
+========================= */
+
+@media (max-width: 480px) {
+
+    nav {
+        font-size: 14px;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .todo {
+        width: 95%;
+        padding: 15px;
+    }
+
+    li {
+        width: 95%;
+        font-size: 14px;
+    }
+}

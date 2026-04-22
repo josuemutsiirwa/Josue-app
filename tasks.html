@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>All Tasks</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+    <h2>All Tasks</h2>
+</nav>
+
+<!-- FILTER BUTTONS -->
+<div class="filter">
+    <button onclick="filterTasks('all')">All</button>
+    <button onclick="filterTasks('done')">Done</button>
+    <button onclick="filterTasks('not')">Not Done</button>
+</div>
+
+<ul id="task-list"></ul>
+
+<h3 id="total-money">Total: $0</h3>
+
+<div class="link">
+    <a href="index.html">
+        <button>⬅ Back</button>
+    </a>
+</div>
+
+<script src="tasks.js" defer></script>
+
+</body>
+</html>
