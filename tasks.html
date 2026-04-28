@@ -1,33 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>All Tasks</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Tasks | Joshua Task Manager</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="navbar" aria-label="Main Navigation">
+        <h1>Joshua Task Manager</h1>
+      </nav>
 
-<nav>
-    <h2>All Tasks</h2>
-</nav>
+      <main class="container">
+        <section class="card tasks-page" aria-labelledby="tasks-heading">
+          <div class="tasks-header">
+            <h2 id="tasks-heading">Your Tasks</h2>
+            <a class="btn btn-secondary" href="index.html">Back to Add Task</a>
+          </div>
 
-<!-- FILTER BUTTONS -->
-<div class="filter">
-    <button onclick="filterTasks('all')">All</button>
-    <button onclick="filterTasks('done')">Done</button>
-    <button onclick="filterTasks('not')">Not Done</button>
-</div>
+          <div class="filters" role="group" aria-label="Task filters">
+            <button type="button" class="btn btn-filter active" data-filter="all">All Tasks</button>
+            <button type="button" class="btn btn-filter" data-filter="done">Completed Tasks</button>
+            <button type="button" class="btn btn-filter" data-filter="not-done">Not Completed Tasks</button>
+          </div>
 
-<ul id="task-list"></ul>
+          <p id="total-row" class="total-row">Total: <strong id="total-amount">0.00</strong></p>
+          <div id="tasks-list" class="tasks-list" aria-live="polite"></div>
+          <p id="empty-state" class="empty-state">No tasks found for this filter.</p>
+        </section>
+      </main>
 
-<h3 id="total-money">Total: $0</h3>
+      <footer class="footer">
+        <div class="footer-grid">
+          <section>
+            <h3>Contact</h3>
+            <p>Email: joshua@example.com</p>
+            <p>Phone: +254 700 123 456</p>
+          </section>
 
-<div class="link">
-    <a href="index.html">
-        <button>⬅ Back</button>
-    </a>
-</div>
+          <section>
+            <h3>Connect</h3>
+            <div class="social-icons" aria-label="Social media links">
+              <a href="#" aria-label="Instagram" class="icon-link">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm6-3.25a1.25 1.25 0 1 1-1.25 1.25A1.25 1.25 0 0 1 18 6.25Z"/></svg>
+              </a>
+              <a href="#" aria-label="Facebook" class="icon-link">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.5-3h-3.2V9.1c0-.9.4-1.6 1.8-1.6H17V4.9c-.3 0-1.4-.1-2.7-.1-2.7 0-4.5 1.7-4.5 4.7V11H7v3h2.8v8h3.7Z"/></svg>
+              </a>
+              <a href="#" aria-label="WhatsApp" class="icon-link">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 3.2 16.7L2 22l5.5-1.2A11 11 0 1 0 20.5 3.5ZM12 20a8.9 8.9 0 0 1-4.5-1.2l-.3-.2-3.2.7.7-3.1-.2-.3A9 9 0 1 1 12 20Zm4.9-6.7c-.3-.2-1.8-.9-2.1-1s-.5-.1-.7.2-.8 1-1 1.2-.4.2-.7.1a7.3 7.3 0 0 1-3.6-3.2c-.2-.3 0-.5.1-.7s.3-.4.4-.6a.6.6 0 0 0 0-.6c-.1-.2-.7-1.6-.9-2.2-.2-.5-.4-.4-.7-.4h-.6a1.1 1.1 0 0 0-.8.4A3.4 3.4 0 0 0 6 9.3 5.8 5.8 0 0 0 7.2 12a12 12 0 0 0 4.6 4.1 11.3 11.3 0 0 0 1.5.6 3.6 3.6 0 0 0 1.7.1 2.8 2.8 0 0 0 1.9-1.4 2.4 2.4 0 0 0 .2-1.4c0-.1-.2-.2-.4-.3Z"/></svg>
+              </a>
+            </div>
+          </section>
+        </div>
+        <p class="footer-copy">© 2026 Joshua Task Manager. All rights reserved.</p>
+      </footer>
+    </div>
 
-<script src="tasks.js" defer></script>
-
-</body>
+    <script src="tasks.js"></script>
+  </body>
 </html>

@@ -1,121 +1,257 @@
-document.addEventListener("DOMContentLoaded", () => {
+const TASKS_KEY = "joshua_task_manager_tasks";
 
-    const list = document.getElementById("task-list");
-    const totalDisplay = document.getElementById("total-money");
+let activeFilter = "all"; // all | done | not-done
 
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    let currentFilter = "all";
+/**
+ * Read tasks safely from localStorage.
+ */
+function getTasks() {
+  try {
+    const raw = localStorage.getItem(TASKS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    console.error("Failed to read tasks:", error);
+    return [];
+  }
+}
 
-    function displayTasks() {
-        list.innerHTML = "";
+/**
+ * Save tasks in localStorage.
+ */
+function saveTasks(tasks) {
+  localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+}
 
-        let filtered = tasks;
+const tasksList = document.getElementById("tasks-list");
+const emptyState = document.getElementById("empty-state");
+const totalRow = document.getElementById("total-row");
+const filterButtons = document.querySelectorAll(".btn-filter");
 
-        if (currentFilter === "done") {
-            filtered = tasks.filter(t => t.done);
-        } else if (currentFilter === "not") {
-            filtered = tasks.filter(t => !t.done);
-        }
+function formatMoney(value) {
+  return Number(value || 0).toFixed(2);
+}
 
-        filtered.forEach((task, index) => {
+/**
+ * Return filtered tasks based on current filter.
+ */
+function getFilteredTasks(tasks) {
+  if (activeFilter === "done") {
+    return tasks.filter((task) => task.done);
+  }
 
-            const li = document.createElement("li");
+  if (activeFilter === "not-done") {
+    return tasks.filter((task) => !task.done);
+  }
 
-            const info = document.createElement("div");
-            info.textContent = `${task.text} | $${task.money} | ${task.date}`;
+  return tasks;
+}
 
-            if (task.done) {
-                info.classList.add("done-task");
-            }
+/**
+ * Compute the correct total for each filter page.
+ * all -> done + not done
+ * done -> only done
+ * not-done -> only not done
+ */
+function calculateTotalByFilter(allTasks) {
+  if (activeFilter === "done") {
+    return allTasks
+      .filter((task) => task.done)
+      .reduce((sum, task) => sum + Number(task.money || 0), 0);
+  }
 
-            // RADIO
-            const doneRadio = document.createElement("input");
-            doneRadio.type = "radio";
-            doneRadio.name = "task" + index;
-            doneRadio.checked = task.done;
+  if (activeFilter === "not-done") {
+    return allTasks
+      .filter((task) => !task.done)
+      .reduce((sum, task) => sum + Number(task.money || 0), 0);
+  }
 
-            doneRadio.onclick = () => {
-                task.done = true;
-                save();
-                displayTasks();
-            };
+  return allTasks.reduce((sum, task) => sum + Number(task.money || 0), 0);
+}
 
-            const notDoneRadio = document.createElement("input");
-            notDoneRadio.type = "radio";
-            notDoneRadio.name = "task" + index;
-            notDoneRadio.checked = !task.done;
+function getTotalTitle() {
+  if (activeFilter === "done") {
+    return "Total (Completed Tasks):";
+  }
 
-            notDoneRadio.onclick = () => {
-                task.done = false;
-                save();
-                displayTasks();
-            };
+  if (activeFilter === "not-done") {
+    return "Total (Not Completed Tasks):";
+  }
 
-            // BUTTONS
-            const btnBox = document.createElement("div");
-            btnBox.classList.add("task-buttons");
+  return "Total (All Tasks):";
+}
 
-            // DELETE
-            const delBtn = document.createElement("button");
-            delBtn.textContent = "🗑️";
-            delBtn.onclick = () => {
-                tasks.splice(index, 1);
-                save();
-                displayTasks();
-            };
+function updateTaskDone(taskId, doneValue) {
+  const tasks = getTasks();
+  const index = tasks.findIndex((task) => task.id === taskId);
 
-            // EDIT
-            const editBtn = document.createElement("button");
-            editBtn.textContent = "✏️";
-            editBtn.onclick = () => {
-                const newText = prompt("Edit task:", task.text);
-                if (newText !== null) task.text = newText;
+  if (index === -1) {
+    return;
+  }
 
-                const newMoney = prompt("Edit money:", task.money);
-                if (newMoney !== null) task.money = newMoney;
+  tasks[index].done = doneValue;
+  saveTasks(tasks);
+  renderTasks();
+}
 
-                save();
-                displayTasks();
-            };
+function deleteTask(taskId) {
+  const tasks = getTasks();
+  const updated = tasks.filter((task) => task.id !== taskId);
+  saveTasks(updated);
+  renderTasks();
+}
 
-            btnBox.appendChild(editBtn);
-            btnBox.appendChild(delBtn);
+function editTask(taskId) {
+  const tasks = getTasks();
+  const index = tasks.findIndex((task) => task.id === taskId);
 
-            li.appendChild(info);
-            li.appendChild(document.createElement("br"));
-            li.appendChild(doneRadio);
-            li.appendChild(document.createTextNode(" Done "));
-            li.appendChild(notDoneRadio);
-            li.appendChild(document.createTextNode(" Not Done"));
-            li.appendChild(btnBox);
+  if (index === -1) {
+    return;
+  }
 
-            list.appendChild(li);
-        });
+  const currentTask = tasks[index];
+  const newText = prompt("Edit task text:", currentTask.text);
+  if (newText === null) return;
 
-        calculateTotal();
+  const text = newText.trim();
+  if (!text) {
+    alert("Task text cannot be empty.");
+    return;
+  }
+
+  const newMoney = prompt("Edit money amount:", String(currentTask.money));
+  if (newMoney === null) return;
+
+  const money = Number(newMoney);
+  if (Number.isNaN(money) || money < 0) {
+    alert("Money must be a valid number (0 or more).");
+    return;
+  }
+
+  const newDate = prompt("Edit date (YYYY-MM-DD):", currentTask.date);
+  if (newDate === null) return;
+
+  if (!newDate.trim()) {
+    alert("Date is required.");
+    return;
+  }
+
+  tasks[index] = {
+    ...tasks[index],
+    text,
+    money,
+    date: newDate,
+  };
+
+  saveTasks(tasks);
+  renderTasks();
+}
+
+/**
+ * Money display logic:
+ * - done: show text + date + money
+ * - not done: show text + date (money optional, hidden here for clarity)
+ */
+function createTaskCard(task) {
+  const card = document.createElement("article");
+  card.className = "task-card";
+
+  const text = document.createElement("p");
+  text.className = "task-text";
+  text.textContent = task.text;
+
+  const date = document.createElement("p");
+  date.className = "task-meta";
+  date.textContent = `Date: ${task.date}`;
+
+  card.append(text, date);
+
+  if (task.done) {
+    const money = document.createElement("p");
+    money.className = "task-meta";
+    money.textContent = `Money: ${formatMoney(task.money)}`;
+    card.appendChild(money);
+  }
+
+  const statusRow = document.createElement("div");
+  statusRow.className = "status-row";
+
+  const doneLabel = document.createElement("label");
+  doneLabel.className = "done-label";
+  const doneRadio = document.createElement("input");
+  doneRadio.type = "radio";
+  doneRadio.name = `status-${task.id}`;
+  doneRadio.checked = task.done;
+  doneRadio.addEventListener("change", () => updateTaskDone(task.id, true));
+  doneLabel.append(doneRadio, " Done");
+
+  const notDoneLabel = document.createElement("label");
+  notDoneLabel.className = "not-done-label";
+  const notDoneRadio = document.createElement("input");
+  notDoneRadio.type = "radio";
+  notDoneRadio.name = `status-${task.id}`;
+  notDoneRadio.checked = !task.done;
+  notDoneRadio.addEventListener("change", () => updateTaskDone(task.id, false));
+  notDoneLabel.append(notDoneRadio, " Not Done");
+
+  statusRow.append(doneLabel, notDoneLabel);
+
+  const actionRow = document.createElement("div");
+  actionRow.className = "action-row";
+
+  const editBtn = document.createElement("button");
+  editBtn.type = "button";
+  editBtn.className = "btn btn-edit";
+  editBtn.textContent = "Edit";
+  editBtn.addEventListener("click", () => editTask(task.id));
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+  deleteBtn.className = "btn btn-delete";
+  deleteBtn.textContent = "Delete";
+  deleteBtn.addEventListener("click", () => {
+    if (confirm("Delete this task?")) {
+      deleteTask(task.id);
     }
+  });
 
-    function calculateTotal() {
-        let total = 0;
+  actionRow.append(editBtn, deleteBtn);
+  card.append(statusRow, actionRow);
 
-        tasks.forEach(task => {
-            if (task.done) {
-                total += Number(task.money);
-            }
-        });
+  return card;
+}
 
-        totalDisplay.textContent = "Total: $" + total;
-    }
+function renderTotal(allTasks) {
+  const total = calculateTotalByFilter(allTasks);
+  totalRow.innerHTML = `${getTotalTitle()} <strong>${formatMoney(total)}</strong>`;
+}
 
-    function save() {
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-    }
+function renderTasks() {
+  const allTasks = getTasks();
+  const filtered = getFilteredTasks(allTasks);
 
-    // FILTER FUNCTION (GLOBAL)
-    window.filterTasks = function(type) {
-        currentFilter = type;
-        displayTasks();
-    };
+  tasksList.innerHTML = "";
 
-    displayTasks();
+  filtered.forEach((task) => {
+    tasksList.appendChild(createTaskCard(task));
+  });
+
+  emptyState.style.display = filtered.length ? "none" : "block";
+  renderTotal(allTasks);
+}
+
+function updateActiveFilterButton() {
+  filterButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.filter === activeFilter);
+  });
+}
+
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeFilter = button.dataset.filter;
+    updateActiveFilterButton();
+    renderTasks();
+  });
 });
+
+updateActiveFilterButton();
+renderTasks();
