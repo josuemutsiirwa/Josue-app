@@ -55,4 +55,15 @@ function handleAddTask(event) {
   alert("Task added successfully.");
 }
 
+/**
+ * Register service worker for PWA support.
+ */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch((error) => {
+      console.error("Service worker registration failed:", error);
+    });
+  });
+}
+
 taskForm.addEventListener("submit", handleAddTask);

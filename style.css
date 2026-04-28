@@ -312,7 +312,8 @@ input:focus {
 
   .btn,
   .full-mobile,
-  .tasks-header .btn {
+  .tasks-header .btn,
+  .action-row .btn {
     width: 100%;
   }
 

@@ -31,62 +31,33 @@ function formatMoney(value) {
   return Number(value || 0).toFixed(2);
 }
 
-/**
- * Return filtered tasks based on current filter.
- */
 function getFilteredTasks(tasks) {
-  if (activeFilter === "done") {
-    return tasks.filter((task) => task.done);
-  }
-
-  if (activeFilter === "not-done") {
-    return tasks.filter((task) => !task.done);
-  }
-
+  if (activeFilter === "done") return tasks.filter((task) => task.done);
+  if (activeFilter === "not-done") return tasks.filter((task) => !task.done);
   return tasks;
 }
 
 /**
- * Compute the correct total for each filter page.
- * all -> done + not done
- * done -> only done
- * not-done -> only not done
+ * Correct totals by filter:
+ * - all: all tasks
+ * - done: only done tasks
+ * - not-done: only not-done tasks
  */
 function calculateTotalByFilter(allTasks) {
-  if (activeFilter === "done") {
-    return allTasks
-      .filter((task) => task.done)
-      .reduce((sum, task) => sum + Number(task.money || 0), 0);
-  }
-
-  if (activeFilter === "not-done") {
-    return allTasks
-      .filter((task) => !task.done)
-      .reduce((sum, task) => sum + Number(task.money || 0), 0);
-  }
-
-  return allTasks.reduce((sum, task) => sum + Number(task.money || 0), 0);
+  const source = getFilteredTasks(allTasks);
+  return source.reduce((sum, task) => sum + Number(task.money || 0), 0);
 }
 
 function getTotalTitle() {
-  if (activeFilter === "done") {
-    return "Total (Completed Tasks):";
-  }
-
-  if (activeFilter === "not-done") {
-    return "Total (Not Completed Tasks):";
-  }
-
+  if (activeFilter === "done") return "Total (Completed Tasks):";
+  if (activeFilter === "not-done") return "Total (Not Completed Tasks):";
   return "Total (All Tasks):";
 }
 
 function updateTaskDone(taskId, doneValue) {
   const tasks = getTasks();
   const index = tasks.findIndex((task) => task.id === taskId);
-
-  if (index === -1) {
-    return;
-  }
+  if (index === -1) return;
 
   tasks[index].done = doneValue;
   saveTasks(tasks);
@@ -103,10 +74,7 @@ function deleteTask(taskId) {
 function editTask(taskId) {
   const tasks = getTasks();
   const index = tasks.findIndex((task) => task.id === taskId);
-
-  if (index === -1) {
-    return;
-  }
+  if (index === -1) return;
 
   const currentTask = tasks[index];
   const newText = prompt("Edit task text:", currentTask.text);
@@ -135,21 +103,13 @@ function editTask(taskId) {
     return;
   }
 
-  tasks[index] = {
-    ...tasks[index],
-    text,
-    money,
-    date: newDate,
-  };
-
+  tasks[index] = { ...tasks[index], text, money, date: newDate };
   saveTasks(tasks);
   renderTasks();
 }
 
 /**
- * Money display logic:
- * - done: show text + date + money
- * - not done: show text + date (money optional, hidden here for clarity)
+ * Updated display logic: always show text + money + date.
  */
 function createTaskCard(task) {
   const card = document.createElement("article");
@@ -159,18 +119,15 @@ function createTaskCard(task) {
   text.className = "task-text";
   text.textContent = task.text;
 
+  const money = document.createElement("p");
+  money.className = "task-meta";
+  money.textContent = `Money: ${formatMoney(task.money)}`;
+
   const date = document.createElement("p");
   date.className = "task-meta";
   date.textContent = `Date: ${task.date}`;
 
-  card.append(text, date);
-
-  if (task.done) {
-    const money = document.createElement("p");
-    money.className = "task-meta";
-    money.textContent = `Money: ${formatMoney(task.money)}`;
-    card.appendChild(money);
-  }
+  card.append(text, money, date);
 
   const statusRow = document.createElement("div");
   statusRow.className = "status-row";
@@ -209,9 +166,7 @@ function createTaskCard(task) {
   deleteBtn.className = "btn btn-delete";
   deleteBtn.textContent = "Delete";
   deleteBtn.addEventListener("click", () => {
-    if (confirm("Delete this task?")) {
-      deleteTask(task.id);
-    }
+    if (confirm("Delete this task?")) deleteTask(task.id);
   });
 
   actionRow.append(editBtn, deleteBtn);
@@ -230,10 +185,7 @@ function renderTasks() {
   const filtered = getFilteredTasks(allTasks);
 
   tasksList.innerHTML = "";
-
-  filtered.forEach((task) => {
-    tasksList.appendChild(createTaskCard(task));
-  });
+  filtered.forEach((task) => tasksList.appendChild(createTaskCard(task)));
 
   emptyState.style.display = filtered.length ? "none" : "block";
   renderTotal(allTasks);
@@ -252,6 +204,14 @@ filterButtons.forEach((button) => {
     renderTasks();
   });
 });
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch((error) => {
+      console.error("Service worker registration failed:", error);
+    });
+  });
+}
 
 updateActiveFilterButton();
 renderTasks();

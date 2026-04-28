@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>View Tasks | Joshua Task Manager</title>
+
+    <meta name="theme-color" content="#1c67d9" />
+    <meta name="description" content="Joshua Task Manager - view and manage your tasks." />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="icon-192.svg" type="image/svg+xml" />
+
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -25,7 +31,8 @@
             <button type="button" class="btn btn-filter" data-filter="not-done">Not Completed Tasks</button>
           </div>
 
-          <p id="total-row" class="total-row">Total: <strong id="total-amount">0.00</strong></p>
+          <p id="total-row" class="total-row">Total (All Tasks): <strong id="total-amount">0.00</strong></p>
+
           <div id="tasks-list" class="tasks-list" aria-live="polite"></div>
           <p id="empty-state" class="empty-state">No tasks found for this filter.</p>
         </section>
